@@ -44,6 +44,9 @@ public class ClientThread implements Runnable {
   private Properties props;
   private long targetOpsTickNs;
   private final Measurements measurements;
+  private int period;
+  private int baseTarget;
+  private int amplitude;
 
   /**
    * Constructor.
@@ -71,6 +74,7 @@ public class ClientThread implements Runnable {
     measurements = Measurements.getMeasurements();
     spinSleep = Boolean.valueOf(this.props.getProperty("spin.sleep", "false"));
     this.completeLatch = completeLatch;
+    loadSineWaveOptions();
   }
 
   public void setThreadId(final int threadId) {
@@ -164,6 +168,12 @@ public class ClientThread implements Runnable {
         LockSupport.parkNanos(deadline - System.nanoTime());
       }
     }
+  }
+
+  private void loadSineWaveOptions() {
+    period = Integer.parseInt(props.getProperty("period", "60"));
+    baseTarget = Integer.parseInt(props.getProperty("baseTarget", "50"));
+    amplitude = Integer.parseInt(props.getProperty("amplitude", "25"));
   }
 
   private void throttleNanos(long startTimeNanos) {
