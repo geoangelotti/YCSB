@@ -176,6 +176,14 @@ public class ClientThread implements Runnable {
     amplitude = Integer.parseInt(props.getProperty("amplitude", "25"));
   }
 
+  private long calculateSineTargetOpsTickNs() {
+    double radians = (2 * Math.PI * opsdone) / period;
+    double newTarget = baseTarget + amplitude * Math.sin(radians);
+    System.out.println("newTarget: " + newTarget);
+    double newTargetPerThreadPerMs = newTarget / 1_000.0;
+    return (long) (1_000_000 / newTargetPerThreadPerMs);
+  }
+
   private void throttleNanos(long startTimeNanos) {
     //throttle the operations
     if (targetOpsPerMs > 0) {
