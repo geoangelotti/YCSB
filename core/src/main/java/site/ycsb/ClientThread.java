@@ -187,8 +187,9 @@ public class ClientThread implements Runnable {
   private void throttleNanos(long startTimeNanos) {
     //throttle the operations
     if (targetOpsPerMs > 0) {
+      long newTargetOpsTickNs = calculateSineTargetOpsTickNs();
       // delay until next tick
-      long deadline = startTimeNanos + opsdone * targetOpsTickNs;
+      long deadline = startTimeNanos + opsdone * newTargetOpsTickNs;
       sleepUntil(deadline);
       measurements.setIntendedStartTimeNs(deadline);
     }
