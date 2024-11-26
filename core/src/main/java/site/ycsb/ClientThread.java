@@ -18,6 +18,10 @@
 package site.ycsb;
 
 import site.ycsb.measurements.Measurements;
+import site.ycsb.strategy.ConstantTargetStrategy;
+import site.ycsb.strategy.SineTargetStrategy;
+import site.ycsb.strategy.TargetStrategy;
+
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,9 +48,7 @@ public class ClientThread implements Runnable {
   private Properties props;
   private long targetOpsTickNs;
   private final Measurements measurements;
-  private int period;
-  private int baseTarget;
-  private int amplitude;
+  private TargetStrategy targetStrategy;
 
   /**
    * Constructor.
@@ -74,7 +76,7 @@ public class ClientThread implements Runnable {
     measurements = Measurements.getMeasurements();
     spinSleep = Boolean.valueOf(this.props.getProperty("spin.sleep", "false"));
     this.completeLatch = completeLatch;
-    loadSineWaveOptions();
+    selectTargetStrategy();
   }
 
   public void setThreadId(final int threadId) {
@@ -87,6 +89,10 @@ public class ClientThread implements Runnable {
 
   public int getOpsDone() {
     return opsdone;
+  }
+
+  public long getTargetOpsTickNs() {
+    return targetOpsTickNs;
   }
 
   @Override
@@ -170,24 +176,19 @@ public class ClientThread implements Runnable {
     }
   }
 
-  private void loadSineWaveOptions() {
-    period = Integer.parseInt(props.getProperty("period", "60"));
-    baseTarget = Integer.parseInt(props.getProperty("baseTarget", "50"));
-    amplitude = Integer.parseInt(props.getProperty("amplitude", "25"));
-  }
-
-  private long calculateSineTargetOpsTickNs() {
-    double radians = (2 * Math.PI * opsdone) / period;
-    double newTarget = baseTarget + amplitude * Math.sin(radians);
-    System.out.println("newTarget: " + newTarget);
-    double newTargetPerThreadPerMs = newTarget / 1_000.0;
-    return (long) (1_000_000 / newTargetPerThreadPerMs);
+  private void selectTargetStrategy() {
+    String strategy = props.getProperty("strategy", "constant");
+    if (strategy.equals("sine")) {
+      targetStrategy = new SineTargetStrategy(this, props);
+      return;
+    }
+    targetStrategy = new ConstantTargetStrategy(this);
   }
 
   private void throttleNanos(long startTimeNanos) {
     //throttle the operations
     if (targetOpsPerMs > 0) {
-      long newTargetOpsTickNs = calculateSineTargetOpsTickNs();
+      long newTargetOpsTickNs = targetStrategy.calculate();
       // delay until next tick
       long deadline = startTimeNanos + opsdone * newTargetOpsTickNs;
       sleepUntil(deadline);
