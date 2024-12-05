@@ -25,7 +25,7 @@ public class SineTargetStrategy implements TargetStrategy {
   public long calculate() {
     double radians = (2 * Math.PI * clientThread.getOpsDone()) / period;
     double newTarget = baseTarget + amplitude * Math.sin(radians);
-    System.out.println("newTarget: " + newTarget);
+    //System.out.println("newTarget: " + newTarget);
     double newTargetPerThreadPerMs = newTarget / 1_000.0;
     return (long) (1_000_000 / newTargetPerThreadPerMs);
   }
