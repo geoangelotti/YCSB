@@ -14,8 +14,8 @@ strategy=sine
 target=1
 
 period=5000
-baseTarget=100
-amplitude=80
+baseTarget=400
+amplitude=200
 
 
 requestdistribution=zipfian
