@@ -20,7 +20,8 @@ public class SineTargetStrategy implements TargetStrategy {
     baseTarget = Integer.parseInt(properties.getProperty("baseTarget", "50"));
     amplitude = Integer.parseInt(properties.getProperty("amplitude", "25"));
     if (baseTarget <= 0 || baseTarget - amplitude <= 0) {
-      throw new IllegalArgumentException(String.format("baseTarget %d and amplitude %d will lead to stuck strategy.", baseTarget, amplitude));
+      throw new IllegalArgumentException(
+          String.format("baseTarget %d and amplitude %d will lead to stuck strategy.", baseTarget, amplitude));
     }
   }
 
