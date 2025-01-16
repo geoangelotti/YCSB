@@ -1,4 +1,4 @@
-recordcount=400000
+recordcount=25000
 operationcount=400000
 workload=site.ycsb.workloads.CoreWorkload
 
