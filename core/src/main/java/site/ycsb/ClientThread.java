@@ -18,6 +18,10 @@
 package site.ycsb;
 
 import site.ycsb.measurements.Measurements;
+import site.ycsb.strategy.ConstantTargetStrategy;
+import site.ycsb.strategy.SineTargetStrategy;
+import site.ycsb.strategy.TargetStrategy;
+
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,6 +48,7 @@ public class ClientThread implements Runnable {
   private Properties props;
   private long targetOpsTickNs;
   private final Measurements measurements;
+  private TargetStrategy targetStrategy;
 
   /**
    * Constructor.
@@ -71,6 +76,7 @@ public class ClientThread implements Runnable {
     measurements = Measurements.getMeasurements();
     spinSleep = Boolean.valueOf(this.props.getProperty("spin.sleep", "false"));
     this.completeLatch = completeLatch;
+    selectTargetStrategy();
   }
 
   public void setThreadId(final int threadId) {
@@ -83,6 +89,10 @@ public class ClientThread implements Runnable {
 
   public int getOpsDone() {
     return opsdone;
+  }
+
+  public long getTargetOpsTickNs() {
+    return targetOpsTickNs;
   }
 
   @Override
@@ -166,11 +176,21 @@ public class ClientThread implements Runnable {
     }
   }
 
+  private void selectTargetStrategy() {
+    String strategy = props.getProperty("strategy", "constant");
+    if (strategy.equals("sine")) {
+      targetStrategy = new SineTargetStrategy(this, props);
+      return;
+    }
+    targetStrategy = new ConstantTargetStrategy(this);
+  }
+
   private void throttleNanos(long startTimeNanos) {
     //throttle the operations
     if (targetOpsPerMs > 0) {
+      long newTargetOpsTickNs = targetStrategy.calculate();
       // delay until next tick
-      long deadline = startTimeNanos + opsdone * targetOpsTickNs;
+      long deadline = startTimeNanos + opsdone * newTargetOpsTickNs;
       sleepUntil(deadline);
       measurements.setIntendedStartTimeNs(deadline);
     }
