@@ -12,3 +12,6 @@ insertproportion=0
 strategy=constant
 
 requestdistribution=zipfian
+
+cassandra.writeconsistencylevel=ONE
+cassandra.readconsistencylevel=ONE

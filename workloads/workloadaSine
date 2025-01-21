@@ -19,3 +19,6 @@ amplitude=200
 
 
 requestdistribution=zipfian
+
+cassandra.writeconsistencylevel=ONE
+cassandra.readconsistencylevel=ONE
