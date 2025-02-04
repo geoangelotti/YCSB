@@ -30,7 +30,7 @@ public class Sine2TargetStrategy implements TargetStrategy {
     double newTarget = baseTarget + amplitude * Math.sin(radians);
     //System.out.println("newTarget: " + newTarget);
     double newTargetPerThreadPerMs = newTarget / 1_000.0;
-    System.out.println("newTargetPerThreadPerMs: " + newTargetPerThreadPerMs);
+    //System.out.println("newTargetPerThreadPerMs: " + newTargetPerThreadPerMs);
     return (long) (1_000_000 / newTargetPerThreadPerMs);
   }
 }
