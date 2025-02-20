@@ -9,13 +9,13 @@ import java.util.Properties;
  **/
 
 public class SineTargetStrategy implements TargetStrategy {
-  private final ClientThread clientThread;
   private final int period;
   private final int baseTarget;
   private final int amplitude;
+  private final long startTime;
 
-  public SineTargetStrategy(ClientThread clientThread, Properties properties) {
-    this.clientThread = clientThread;
+  public SineTargetStrategy(Properties properties, long startTime) {
+    this.startTime = startTime;
     period = Integer.parseInt(properties.getProperty("period", "60"));
     baseTarget = Integer.parseInt(properties.getProperty("baseTarget", "50"));
     amplitude = Integer.parseInt(properties.getProperty("amplitude", "25"));
@@ -27,9 +27,9 @@ public class SineTargetStrategy implements TargetStrategy {
 
   @Override
   public long calculate() {
-    double radians = (2 * Math.PI * clientThread.getOpsDone()) / period * 1000;
+    long now = System.currentTimeMillis();
+    double radians = (2 * Math.PI * now - startTime) / (period * 1000);
     double newTarget = baseTarget + amplitude * Math.sin(radians);
-    //System.out.println("newTarget: " + newTarget);
     double newTargetPerThreadPerMs = newTarget / 1_000.0;
     return (long) (1_000_000 / newTargetPerThreadPerMs);
   }
