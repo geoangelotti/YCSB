@@ -19,7 +19,6 @@ package site.ycsb;
 
 import site.ycsb.measurements.Measurements;
 import site.ycsb.strategy.ConstantTargetStrategy;
-import site.ycsb.strategy.Sine2TargetStrategy;
 import site.ycsb.strategy.SineTargetStrategy;
 import site.ycsb.strategy.TargetStrategy;
 
@@ -180,11 +179,7 @@ public class ClientThread implements Runnable {
   private void selectTargetStrategy() {
     String strategy = props.getProperty("strategy", "constant");
     if (strategy.equals("sine")) {
-      targetStrategy = new SineTargetStrategy(this, props);
-      return;
-    }
-    if (strategy.equals("sine2")) {
-      targetStrategy = new Sine2TargetStrategy(props, System.currentTimeMillis());
+      targetStrategy = new SineTargetStrategy(props, System.currentTimeMillis());
       return;
     }
     targetStrategy = new ConstantTargetStrategy(this);
